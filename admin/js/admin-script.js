@@ -93,6 +93,9 @@ jQuery(document).ready(function ($) {
     /**
      * Apply changes
      */
+    /**
+     * Apply changes
+     */
     applyBtn.on('click', function (e) {
         e.preventDefault();
 
@@ -112,56 +115,112 @@ jQuery(document).ready(function ($) {
             '\n\nPočet vybraných změn: ' + selectedChanges.length;
 
         if (selectedChanges.length > 100) {
-            confirmMessage += '\n\nUpozornění: Aktualizace může trvat několik minut.';
+            confirmMessage += '\n\nUpozornění: Aktualizace bude probíhat po částech (dávky po 50), aby se předešlo chybám serveru.';
         }
 
         if (!confirm(confirmMessage)) {
             return;
         }
 
-        showLoading(applyBtn);
+        // Setup batch processing
+        const batchSize = 50;
+        const totalBatches = Math.ceil(selectedChanges.length / batchSize);
+        let currentBatch = 0;
+        let successCount = 0;
+        let allHtmlResults = '';
+        let hasErrors = false;
+
+        // UI Prep
+        resultsContainer.hide();
+        resultsContent.html('');
+        const originalBtnText = applyBtn.text();
+        applyBtn.prop('disabled', true);
         previewBtn.prop('disabled', true);
 
-        const formData = {
-            action: 'wc_bulk_price_update',
-            nonce: wcBulkPriceEditor.nonce,
-            category_id: $('#category_id').val(),
-            old_price: $('#old_price').val(),
-            new_price: $('#new_price').val(),
-            selected_changes: selectedChanges
-        };
+        function processBatch(startIndex) {
+            currentBatch++;
+            const batchChanges = selectedChanges.slice(startIndex, startIndex + batchSize);
+            const progressPercent = Math.round((currentBatch / totalBatches) * 100);
+            const processedCount = Math.min(startIndex + batchChanges.length, selectedChanges.length);
 
-        $.ajax({
-            url: wcBulkPriceEditor.ajax_url,
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                hideLoading(applyBtn);
-                previewBtn.prop('disabled', false);
+            applyBtn.text(
+                wcBulkPriceEditor.strings.loading + ' (' + processedCount + '/' + selectedChanges.length + ')'
+            );
 
-                if (response.success) {
-                    resultsContent.html(response.data.html);
-                    resultsContainer.show();
-                    previewContainer.hide();
-                    applyBtn.prop('disabled', true);
+            const formData = {
+                action: 'wc_bulk_price_update',
+                nonce: wcBulkPriceEditor.nonce,
+                category_id: $('#category_id').val(),
+                old_price: $('#old_price').val(),
+                new_price: $('#new_price').val(),
+                selected_changes: batchChanges
+            };
 
-                    // Reset form
-                    form[0].reset();
+            $.ajax({
+                url: wcBulkPriceEditor.ajax_url,
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        successCount += response.data.success_count;
 
-                    // Scroll to results
-                    $('html, body').animate({
-                        scrollTop: resultsContainer.offset().top - 50
-                    }, 500);
-                } else {
-                    showError(response.data.message || wcBulkPriceEditor.strings.error);
+                        // Accumulate only the list items, stripping the outer wrappers if possible, 
+                        // or just appending the whole block is fine for now.
+                        allHtmlResults += response.data.html;
+
+                        if (startIndex + batchSize < selectedChanges.length) {
+                            // Process next batch
+                            processBatch(startIndex + batchSize);
+                        } else {
+                            // Finished
+                            finishProcessing();
+                        }
+                    } else {
+                        hasErrors = true;
+                        resultsContent.append('<div class="notice notice-error"><p>' + (response.data.message || wcBulkPriceEditor.strings.error) + '</p></div>');
+                        finishProcessing();
+                    }
+                },
+                error: function () {
+                    hasErrors = true;
+                    resultsContent.append('<div class="notice notice-error"><p>' + wcBulkPriceEditor.strings.error + '</p></div>');
+                    finishProcessing();
                 }
-            },
-            error: function () {
-                hideLoading(applyBtn);
-                previewBtn.prop('disabled', false);
-                showError(wcBulkPriceEditor.strings.error);
+            });
+        }
+
+        function finishProcessing() {
+            applyBtn.text(originalBtnText).prop('disabled', true); // Keep disabled after run
+            previewBtn.prop('disabled', false);
+
+            // Construct final summary
+            let finalHtml = '';
+
+            if (successCount > 0) {
+                finalHtml += '<div class="notice notice-success"><p><strong>' +
+                    'Úspěšně aktualizováno ' + successCount + ' cen (zpracováno v ' + currentBatch + ' dávkách).' +
+                    '</strong></p></div>';
             }
-        });
+
+            resultsContent.html(finalHtml + allHtmlResults);
+            resultsContainer.show();
+            previewContainer.hide();
+
+            // Scroll to results
+            $('html, body').animate({
+                scrollTop: resultsContainer.offset().top - 50
+            }, 500);
+
+            // Reset form partly? 
+            // In original code we reset form. Here we might want to keep it to see what was done.
+            // But let's follow previous logic -> reset form after success.
+            if (!hasErrors) {
+                form[0].reset();
+            }
+        }
+
+        // Start first batch
+        processBatch(0);
     });
 
     /**
