@@ -1,0 +1,158 @@
+/* WooCommerce Bulk Price Editor Admin Styles */
+
+.wc-bulk-price-editor {
+    max-width: 1200px;
+}
+
+.wc-bulk-price-editor-container {
+    background: #fff;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+}
+
+.wc-bulk-price-editor-form {
+    margin-bottom: 30px;
+}
+
+.wc-bulk-price-editor-form .form-table th {
+    width: 200px;
+    padding: 20px 10px 20px 0;
+}
+
+.wc-bulk-price-editor-form .form-table td {
+    padding: 15px 10px;
+}
+
+.wc-bulk-price-editor-form input[type="number"],
+.wc-bulk-price-editor-form select {
+    width: 100%;
+    max-width: 400px;
+}
+
+.wc-bulk-price-editor-form .description {
+    margin-top: 8px;
+    color: #646970;
+    font-style: italic;
+}
+
+.wc-bulk-price-preview,
+.wc-bulk-price-results {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f1;
+}
+
+.wc-bulk-price-preview h2,
+.wc-bulk-price-results h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.wc-bulk-price-preview .notice,
+.wc-bulk-price-results .notice {
+    margin: 0 0 20px 0;
+}
+
+.wc-bulk-price-preview table {
+    margin-top: 20px;
+}
+
+.wc-bulk-price-preview table th {
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    background: #f9f9f9;
+}
+
+.wc-bulk-price-preview table td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.wc-bulk-price-preview table td small {
+    color: #646970;
+}
+
+/* Checkbox column */
+.wc-bulk-price-preview table .check-column {
+    width: 40px;
+    text-align: center;
+}
+
+.wc-bulk-price-preview table .check-column input[type="checkbox"] {
+    margin: 0;
+}
+
+#select-all-changes {
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.wc-bulk-price-results ul {
+    list-style: disc;
+    margin-left: 20px;
+}
+
+.wc-bulk-price-results ul li {
+    margin-bottom: 8px;
+}
+
+/* Button states */
+#preview-changes:disabled,
+#apply-changes:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Loading state */
+.button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.button.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+
+    .wc-bulk-price-editor-form .form-table th,
+    .wc-bulk-price-editor-form .form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .wc-bulk-price-editor-form .form-table th {
+        padding-bottom: 5px;
+    }
+
+    .wc-bulk-price-preview table {
+        font-size: 12px;
+    }
+
+    .wc-bulk-price-preview table th,
+    .wc-bulk-price-preview table td {
+        padding: 8px;
+    }
+}
