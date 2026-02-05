@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WooCommerce Bulk Price Editor
- * Plugin URI: https://github.com/yourusername/woo-bulk-price-editor
- * Description: Hromadně měňte ceny produktů podle kategorií pro jednoduché i variantní produkty
- * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://yourwebsite.com
+ * Plugin URI: https://github.com/juditth/woo-bulk-updater
+ * Description: Hromadně měňte ceny a popisy produktů podle kategorií. Podporuje jednoduché i variantní produkty s batch processingem pro velké objemy dat.
+ * Version: 1.1.0
+ * Author: Jitka Klingenbergová
+ * Author URI: https://vyladeny-web.cz/
  * Text Domain: woo-bulk-price-editor
  * Domain Path: /languages
  * Requires at least: 5.8
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WC_BULK_PRICE_EDITOR_VERSION', '1.0.0');
+define('WC_BULK_PRICE_EDITOR_VERSION', '1.1.0');
 define('WC_BULK_PRICE_EDITOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WC_BULK_PRICE_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -88,7 +88,7 @@ register_activation_hook(__FILE__, 'wc_bulk_price_editor_activate');
  */
 function wc_bulk_price_editor_settings_link($links)
 {
-    $settings_link = '<a href="admin.php?page=wc-bulk-price-editor">' . __('Nastavení', 'woo-bulk-price-editor') . '</a>';
+    $settings_link = '<a href="admin.php?page=wc-bulk-price-editor">' . __('Otevřít', 'woo-bulk-price-editor') . '</a>';
     array_unshift($links, $settings_link);
     return $links;
 }

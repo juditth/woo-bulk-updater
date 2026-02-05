@@ -240,13 +240,37 @@ class WC_Bulk_Price_Editor_Admin
             wp_send_json_error(array('message' => __('Nebyly nalezeny žádné produkty odpovídající kritériím.', 'woo-bulk-price-editor')));
         }
 
+        // Performance limit: max 100 products in preview
+        $total_found = count($preview);
+        $is_limited = false;
+
+        if ($total_found > 100) {
+            $preview = array_slice($preview, 0, 100);
+            $is_limited = true;
+        }
+
         ob_start();
+
+        // Show warning if results are limited
+        if ($is_limited) {
+            ?>
+            <div class="notice notice-warning">
+                <p><strong>⚠️ Upozornění:</strong> Nalezeno <strong><?php echo $total_found; ?> produktů</strong>,
+                    ale zobrazeno je pouze prvních <strong>100</strong> kvůli výkonu.</p>
+                <p>💡 <strong>Doporučení:</strong> Použijte filtr "Stará cena" nebo zpracujte produkty po menších dávkách
+                    (např. podle podkategorií).</p>
+            </div>
+            <?php
+        }
+
         $this->render_preview_table($preview);
         $html = ob_get_clean();
 
         wp_send_json_success(array(
             'html' => $html,
             'count' => count($preview),
+            'total_found' => $total_found,
+            'is_limited' => $is_limited,
         ));
     }
 
@@ -329,7 +353,6 @@ class WC_Bulk_Price_Editor_Admin
                         <input type="checkbox" class="select-all-checkbox" checked>
                     </th>
                     <th><?php _e('Produkt', 'woo-bulk-price-editor'); ?></th>
-                    <th><?php _e('Typ', 'woo-bulk-price-editor'); ?></th>
                     <th><?php _e('Varianta', 'woo-bulk-price-editor'); ?></th>
                     <th><?php _e('Původní cena', 'woo-bulk-price-editor'); ?></th>
                     <th><?php _e('Nová cena', 'woo-bulk-price-editor'); ?></th>
@@ -337,24 +360,17 @@ class WC_Bulk_Price_Editor_Admin
             </thead>
             <tbody>
                 <?php foreach ($preview as $product): ?>
-                    <?php foreach ($product['changes'] as $index => $change): ?>
+                    <?php foreach ($product['changes'] as $change): ?>
                         <tr>
                             <th class="check-column">
                                 <input type="checkbox" class="change-checkbox" name="selected_changes[]"
-                                    value="<?php echo esc_attr($product['id'] . ':' . ($change['variation_id'] ?? '0')); ?>"
-                                    data-product-id="<?php echo esc_attr($product['id']); ?>"
-                                    data-variation-id="<?php echo esc_attr($change['variation_id'] ?? '0'); ?>" checked>
+                                    value="<?php echo esc_attr($product['id'] . ':' . ($change['variation_id'] ?? '0')); ?>" checked>
                             </th>
-                            <?php if ($index === 0): ?>
-                                <td rowspan="<?php echo count($product['changes']); ?>">
-                                    <strong><a href="<?php echo get_edit_post_link($product['id']); ?>"
-                                            target="_blank"><?php echo esc_html($product['name']); ?></a></strong><br>
-                                    <small>ID: <?php echo $product['id']; ?></small>
-                                </td>
-                                <td rowspan="<?php echo count($product['changes']); ?>">
-                                    <?php echo $product['type'] === 'variable' ? __('Variantní', 'woo-bulk-price-editor') : __('Jednoduchý', 'woo-bulk-price-editor'); ?>
-                                </td>
-                            <?php endif; ?>
+                            <td>
+                                <a href="<?php echo get_edit_post_link($product['id']); ?>" target="_blank">
+                                    <?php echo esc_html($product['name']); ?>
+                                </a>
+                            </td>
                             <td><?php echo esc_html($change['variation_name']); ?></td>
                             <td><?php echo wc_price($change['old_price']); ?></td>
                             <td><strong><?php echo ($change['new_price'] !== '') ? wc_price($change['new_price']) : __('Beze změny', 'woo-bulk-price-editor'); ?></strong>
