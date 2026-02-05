@@ -250,7 +250,16 @@ class WC_Bulk_Price_Updater
      * @param string $new_price New price
      * @return array Results with success count and errors
      */
-    public function update_prices_selective($changes_map, $new_price)
+    /**
+     * Update prices and descriptions for specific selected products/variations
+     *
+     * @param array $changes_map Array of product_id => array of variation_ids
+     * @param string $new_price New price (optional)
+     * @param string $new_short_description New short description (optional)
+     * @param string $new_description New description (optional)
+     * @return array Results with success count and errors
+     */
+    public function update_prices_selective($changes_map, $new_price, $new_short_description = '', $new_description = '')
     {
         $results = array(
             'success' => 0,
@@ -287,7 +296,15 @@ class WC_Bulk_Price_Updater
                             continue;
                         }
 
-                        $variation_obj->set_regular_price($new_price);
+                        if ($new_price !== '') {
+                            $variation_obj->set_regular_price($new_price);
+                        }
+
+                        // Variations only have description (which acts as variation description)
+                        if ($new_description !== '') {
+                            $variation_obj->set_description($new_description);
+                        }
+
                         $variation_obj->save();
                         $updated_variations++;
                     }
@@ -302,7 +319,18 @@ class WC_Bulk_Price_Updater
                     }
                 } else {
                     // Update simple product
-                    $product->set_regular_price($new_price);
+                    if ($new_price !== '') {
+                        $product->set_regular_price($new_price);
+                    }
+
+                    if ($new_short_description !== '') {
+                        $product->set_short_description($new_short_description);
+                    }
+
+                    if ($new_description !== '') {
+                        $product->set_description($new_description);
+                    }
+
                     $product->save();
                     $results['success']++;
                     $results['updated_products'][] = array(

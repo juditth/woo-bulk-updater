@@ -1,47 +1,96 @@
 /* WooCommerce Bulk Price Editor Admin Styles */
 
-.wc-bulk-price-editor {
-    max-width: 1200px;
-}
-
 .wc-bulk-price-editor-container {
-    background: #fff;
-    padding: 20px;
-    margin-top: 20px;
-    border: 1px solid #ccd0d4;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    max-width: 1200px;
+    margin: 20px 0;
 }
 
 .wc-bulk-price-editor-form {
-    margin-bottom: 30px;
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 20px;
 }
 
-.wc-bulk-price-editor-form .form-table th {
-    width: 200px;
-    padding: 20px 10px 20px 0;
+/* Grid Layout */
+.wc-bulk-editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 20px;
 }
 
-.wc-bulk-price-editor-form .form-table td {
-    padding: 15px 10px;
+.wc-bulk-editor-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 20px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
 }
 
-.wc-bulk-price-editor-form input[type="number"],
-.wc-bulk-price-editor-form select {
+.wc-bulk-editor-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f1;
+    color: #1d2327;
+    font-size: 1.1em;
+}
+
+/* Form Elements */
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-row:last-child {
+    margin-bottom: 0;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.form-row input[type="number"],
+.form-row input[type="text"],
+.form-row select,
+.form-row textarea {
     width: 100%;
-    max-width: 400px;
+    margin: 0;
 }
 
-.wc-bulk-price-editor-form .description {
+.form-row textarea {
+    height: 100px;
+    line-height: 1.4;
+}
+
+.form-row .description {
     margin-top: 8px;
     color: #646970;
     font-style: italic;
+    font-size: 13px;
 }
 
+/* Select2 Customization */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container .select2-selection--single {
+    height: 30px;
+    border-color: #8c8f94;
+}
+
+/* Preview & Results */
 .wc-bulk-price-preview,
 .wc-bulk-price-results {
-    margin-top: 30px;
-    padding-top: 30px;
-    border-top: 2px solid #f0f0f1;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    margin-bottom: 20px;
 }
 
 .wc-bulk-price-preview h2,
@@ -50,66 +99,42 @@
     margin-bottom: 20px;
 }
 
-.wc-bulk-price-preview .notice,
-.wc-bulk-price-results .notice {
-    margin: 0 0 20px 0;
-}
-
 .wc-bulk-price-preview table {
     margin-top: 20px;
+    border: 1px solid #c3c4c7;
 }
 
 .wc-bulk-price-preview table th {
+    background: #f0f0f1;
     font-weight: 600;
-    text-align: left;
-    padding: 12px;
-    background: #f9f9f9;
 }
 
 .wc-bulk-price-preview table td {
-    padding: 12px;
     vertical-align: middle;
 }
 
-.wc-bulk-price-preview table td small {
-    color: #646970;
-}
-
-/* Checkbox column */
-.wc-bulk-price-preview table .check-column {
-    width: 40px;
+.check-column {
+    width: 2.2em;
+    padding: 0;
     text-align: center;
 }
 
-.wc-bulk-price-preview table .check-column input[type="checkbox"] {
-    margin: 0;
+.change-checkbox {
+    margin: 0 !important;
 }
 
-#select-all-changes {
-    margin-right: 8px;
-    vertical-align: middle;
+/* Responsive */
+@media screen and (max-width: 960px) {
+    .wc-bulk-editor-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
 }
 
-.wc-bulk-price-results ul {
-    list-style: disc;
-    margin-left: 20px;
-}
-
-.wc-bulk-price-results ul li {
-    margin-bottom: 8px;
-}
-
-/* Button states */
-#preview-changes:disabled,
-#apply-changes:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Loading state */
+/* Loading State */
 .button.loading {
     position: relative;
-    color: transparent;
+    color: transparent !important;
 }
 
 .button.loading::after {
@@ -121,7 +146,7 @@
     left: 50%;
     margin-left: -8px;
     margin-top: -8px;
-    border: 2px solid #fff;
+    border: 2px solid #2271b1;
     border-radius: 50%;
     border-top-color: transparent;
     animation: spinner 0.6s linear infinite;
@@ -130,29 +155,5 @@
 @keyframes spinner {
     to {
         transform: rotate(360deg);
-    }
-}
-
-/* Responsive */
-@media screen and (max-width: 782px) {
-
-    .wc-bulk-price-editor-form .form-table th,
-    .wc-bulk-price-editor-form .form-table td {
-        display: block;
-        width: 100%;
-        padding: 10px 0;
-    }
-
-    .wc-bulk-price-editor-form .form-table th {
-        padding-bottom: 5px;
-    }
-
-    .wc-bulk-price-preview table {
-        font-size: 12px;
-    }
-
-    .wc-bulk-price-preview table th,
-    .wc-bulk-price-preview table td {
-        padding: 8px;
     }
 }

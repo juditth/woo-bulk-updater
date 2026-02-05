@@ -64,10 +64,13 @@ class WC_Bulk_Price_Editor_Admin
         wp_enqueue_script(
             'wc-bulk-price-editor-admin',
             WC_BULK_PRICE_EDITOR_PLUGIN_URL . 'admin/js/admin-script.js',
-            array('jquery'),
+            array('jquery', 'select2'),
             WC_BULK_PRICE_EDITOR_VERSION,
             true
         );
+
+        wp_enqueue_style('select2');
+        wp_enqueue_script('select2');
 
         wp_localize_script('wc-bulk-price-editor-admin', 'wcBulkPriceEditor', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -106,68 +109,71 @@ class WC_Bulk_Price_Editor_Admin
                     <form id="wc-bulk-price-form">
                         <?php wp_nonce_field('wc_bulk_price_editor_nonce', 'wc_bulk_price_nonce'); ?>
 
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    <label for="category_id">
-                                        <?php _e('Kategorie', 'woo-bulk-price-editor'); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <select name="category_id" id="category_id" class="regular-text" required>
-                                        <option value="">
-                                            <?php _e('-- Vyberte kategorii --', 'woo-bulk-price-editor'); ?>
-                                        </option>
+                        <div class="wc-bulk-editor-grid">
+                            <!-- Section 1: Filter -->
+                            <div class="wc-bulk-editor-section">
+                                <h3><?php _e('1. Filtrování produktů (KDE)', 'woo-bulk-price-editor'); ?></h3>
+
+                                <div class="form-row">
+                                    <label for="category_id"><?php _e('Kategorie', 'woo-bulk-price-editor'); ?></label>
+                                    <select name="category_id" id="category_id" class="wc-category-select" required>
+                                        <option value=""><?php _e('Vyhledat kategorii...', 'woo-bulk-price-editor'); ?></option>
                                         <?php foreach ($categories as $category): ?>
                                             <option value="<?php echo esc_attr($category->term_id); ?>">
-                                                <?php echo esc_html($category->name); ?> (
-                                                <?php echo $category->count; ?>)
+                                                <?php echo esc_html($category->name); ?> (<?php echo $category->count; ?>)
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                     <p class="description">
-                                        <?php _e('Vyberte kategorii produktů, u kterých chcete změnit ceny.', 'woo-bulk-price-editor'); ?>
+                                        <?php _e('Začněte psát pro vyhledání kategorie.', 'woo-bulk-price-editor'); ?>
                                     </p>
-                                </td>
-                            </tr>
+                                </div>
 
-                            <tr>
-                                <th scope="row">
-                                    <label for="old_price">
-                                        <?php _e('Původní cena (volitelné)', 'woo-bulk-price-editor'); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <input type="number" name="old_price" id="old_price" class="regular-text" step="0.01"
-                                        min="0">
+                                <div class="form-row">
+                                    <label
+                                        for="old_price"><?php _e('Původní cena (volitelné)', 'woo-bulk-price-editor'); ?></label>
+                                    <input type="number" name="old_price" id="old_price" step="0.01" min="0">
                                     <p class="description">
-                                        <?php _e('Pokud vyplníte, změní se pouze produkty s touto cenou. Pokud necháte prázdné, změní se všechny produkty v kategorii.', 'woo-bulk-price-editor'); ?>
+                                        <?php _e('Vyplňte pouze pokud chcete filtrovat podle konkrétní ceny.', 'woo-bulk-price-editor'); ?>
                                     </p>
-                                </td>
-                            </tr>
+                                </div>
 
-                            <tr>
-                                <th scope="row">
-                                    <label for="new_price">
-                                        <?php _e('Nová cena', 'woo-bulk-price-editor'); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <input type="number" name="new_price" id="new_price" class="regular-text" step="0.01"
-                                        min="0" required>
-                                    <p class="description">
-                                        <?php _e('Zadejte novou cenu, která se nastaví vybraným produktům.', 'woo-bulk-price-editor'); ?>
-                                    </p>
-                                </td>
-                            </tr>
-                        </table>
+                                <div class="form-row" style="margin-top: 30px;">
+                                    <button type="button" id="preview-changes" class="button button-primary button-large"
+                                        style="width: 100%;">
+                                        <?php _e('🔍 Vyhledat produkty', 'woo-bulk-price-editor'); ?>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <p class="submit">
-                            <button type="button" id="preview-changes" class="button button-secondary">
-                                <?php _e('Zobrazit náhled změn', 'woo-bulk-price-editor'); ?>
-                            </button>
-                            <button type="button" id="apply-changes" class="button button-primary" disabled>
-                                <?php _e('Aplikovat změny', 'woo-bulk-price-editor'); ?>
+                            <!-- Section 2: Values -->
+                            <div class="wc-bulk-editor-section">
+                                <h3><?php _e('2. Nové hodnoty (CO)', 'woo-bulk-price-editor'); ?></h3>
+
+                                <div class="form-row">
+                                    <label for="new_price"><?php _e('Nová cena', 'woo-bulk-price-editor'); ?></label>
+                                    <input type="number" name="new_price" id="new_price" step="0.01" min="0"
+                                        placeholder="<?php _e('Ponechat prázdné pro beze změny', 'woo-bulk-price-editor'); ?>">
+                                </div>
+
+                                <div class="form-row">
+                                    <label for="new_short_description"><?php _e('Krátký popis', 'woo-bulk-price-editor'); ?>
+                                        <small>(jen pro jednoduché produkty)</small></label>
+                                    <textarea name="new_short_description" id="new_short_description"
+                                        placeholder="<?php _e('Ponechat prázdné pro beze změny', 'woo-bulk-price-editor'); ?>"></textarea>
+                                </div>
+
+                                <div class="form-row">
+                                    <label for="new_description"><?php _e('Hlavní popis', 'woo-bulk-price-editor'); ?></label>
+                                    <textarea name="new_description" id="new_description"
+                                        placeholder="<?php _e('Ponechat prázdné pro beze změny', 'woo-bulk-price-editor'); ?>"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="submit" style="text-align: right; border-top: 1px solid #ccc; padding-top: 20px;">
+                            <button type="button" id="apply-changes" class="button button-primary button-hero" disabled>
+                                <?php _e('Aplikovat změny na vybrané produkty', 'woo-bulk-price-editor'); ?>
                             </button>
                         </p>
                     </form>
@@ -206,9 +212,14 @@ class WC_Bulk_Price_Editor_Admin
         $old_price = isset($_POST['old_price']) ? sanitize_text_field($_POST['old_price']) : '';
         $new_price = isset($_POST['new_price']) ? sanitize_text_field($_POST['new_price']) : '';
 
-        if (!$category_id || !$new_price) {
-            wp_send_json_error(array('message' => __('Vyplňte všechna povinná pole.', 'woo-bulk-price-editor')));
+        // Check if just using as filter or search
+        if (!$category_id) {
+            wp_send_json_error(array('message' => __('Vyberte alespoň kategorii.', 'woo-bulk-price-editor')));
         }
+
+        // For preview, we just list products based on filter, new_price is optional for preview context
+        // But if user wants to see "New Price", they should fill it. 
+        // Logic: Preview just shows what will be affected.
 
         $preview = $this->price_updater->get_preview($category_id, $old_price, $new_price);
 
@@ -240,10 +251,12 @@ class WC_Bulk_Price_Editor_Admin
         $category_id = isset($_POST['category_id']) ? intval($_POST['category_id']) : 0;
         $old_price = isset($_POST['old_price']) ? sanitize_text_field($_POST['old_price']) : '';
         $new_price = isset($_POST['new_price']) ? sanitize_text_field($_POST['new_price']) : '';
+        $new_short_description = isset($_POST['new_short_description']) ? wp_kses_post($_POST['new_short_description']) : '';
+        $new_description = isset($_POST['new_description']) ? wp_kses_post($_POST['new_description']) : '';
         $selected_changes = isset($_POST['selected_changes']) ? $_POST['selected_changes'] : array();
 
-        if (!$category_id || !$new_price || empty($selected_changes)) {
-            wp_send_json_error(array('message' => __('Vyplňte všechna povinná pole a vyberte alespoň jeden produkt.', 'woo-bulk-price-editor')));
+        if (!$category_id || empty($selected_changes) || (!$new_price && !$new_short_description && !$new_description)) {
+            wp_send_json_error(array('message' => __('Vyplňte alespoň jednu hodnotu ke změně a vyberte produkty.', 'woo-bulk-price-editor')));
         }
 
         // Parse selected changes into array of product_id => variation_ids
@@ -256,7 +269,7 @@ class WC_Bulk_Price_Editor_Admin
             $changes_map[$product_id][] = $variation_id;
         }
 
-        $results = $this->price_updater->update_prices_selective($changes_map, $new_price);
+        $results = $this->price_updater->update_prices_selective($changes_map, $new_price, $new_short_description, $new_description);
 
         ob_start();
         $this->render_results($results);
@@ -395,7 +408,7 @@ class WC_Bulk_Price_Editor_Admin
                     <?php endforeach; ?>
                 </ul>
             </div>
-                        <?php
+            <?php
         }
     }
 }

@@ -9,6 +9,16 @@ jQuery(document).ready(function ($) {
     const resultsContainer = $('#results-container');
     const resultsContent = $('#results-content');
 
+    // Initialize Select2
+    $('.wc-category-select').select2({
+        width: '100%',
+        language: {
+            noResults: function () {
+                return "Nenalezena žádná kategorie";
+            }
+        }
+    });
+
     /**
      * Show loading state
      */
@@ -60,7 +70,9 @@ jQuery(document).ready(function ($) {
             nonce: wcBulkPriceEditor.nonce,
             category_id: $('#category_id').val(),
             old_price: $('#old_price').val(),
-            new_price: $('#new_price').val()
+            new_price: $('#new_price').val(),
+            new_short_description: $('#new_short_description').val(),
+            new_description: $('#new_description').val()
         };
 
         $.ajax({
@@ -153,6 +165,8 @@ jQuery(document).ready(function ($) {
                 category_id: $('#category_id').val(),
                 old_price: $('#old_price').val(),
                 new_price: $('#new_price').val(),
+                new_short_description: $('#new_short_description').val(),
+                new_description: $('#new_description').val(),
                 selected_changes: batchChanges
             };
 
@@ -216,6 +230,7 @@ jQuery(document).ready(function ($) {
             // But let's follow previous logic -> reset form after success.
             if (!hasErrors) {
                 form[0].reset();
+                $('.wc-category-select').val(null).trigger('change');
             }
         }
 
@@ -265,7 +280,7 @@ jQuery(document).ready(function ($) {
     /**
      * Reset preview when form changes
      */
-    form.on('change', 'input, select', function () {
+    form.on('change', 'input, select, textarea', function () {
         previewContainer.hide();
         resultsContainer.hide();
         applyBtn.prop('disabled', true);
