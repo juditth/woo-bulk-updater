@@ -9,15 +9,21 @@ jQuery(document).ready(function ($) {
     const resultsContainer = $('#results-container');
     const resultsContent = $('#results-content');
 
-    // Initialize Select2
-    $('.wc-category-select').select2({
-        width: '100%',
-        language: {
-            noResults: function () {
-                return "Nenalezena žádná kategorie";
+    // Initialize Select2 (or SelectWoo in newer WooCommerce)
+    const selectMethod = $.fn.selectWoo ? 'selectWoo' : 'select2';
+
+    if ($.fn[selectMethod]) {
+        $('.wc-category-select')[selectMethod]({
+            width: '100%',
+            allowClear: true,
+            placeholder: $(this).data('placeholder'), // Ensure placeholder works
+            language: {
+                noResults: function () {
+                    return "Nenalezena žádná kategorie";
+                }
             }
-        }
-    });
+        });
+    }
 
     /**
      * Show loading state

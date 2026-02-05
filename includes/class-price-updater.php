@@ -283,7 +283,22 @@ class WC_Bulk_Price_Updater
 
             try {
                 if ($product->is_type('variable')) {
-                    // Update only selected variations
+                    // 1. Update Parent Product Descriptions (if provided)
+                    $parent_updated = false;
+                    if ($new_short_description !== '') {
+                        $product->set_short_description($new_short_description);
+                        $parent_updated = true;
+                    }
+                    if ($new_description !== '') {
+                        $product->set_description($new_description);
+                        $parent_updated = true;
+                    }
+
+                    if ($parent_updated) {
+                        $product->save();
+                    }
+
+                    // 2. Update Variations (Price only)
                     $updated_variations = 0;
 
                     foreach ($variation_ids as $variation_id) {
@@ -296,21 +311,24 @@ class WC_Bulk_Price_Updater
                             continue;
                         }
 
+                        $variation_changed = false;
+
                         if ($new_price !== '') {
                             $variation_obj->set_regular_price($new_price);
+                            $variation_changed = true;
                         }
 
-                        // Variations only have description (which acts as variation description)
-                        if ($new_description !== '') {
-                            $variation_obj->set_description($new_description);
-                        }
+                        // Note: Variations usually inherit description, so we don't set it on variation level 
+                        // unless specifically requested, but here we set it on Parent per user request.
 
-                        $variation_obj->save();
-                        $updated_variations++;
+                        if ($variation_changed) {
+                            $variation_obj->save();
+                            $updated_variations++;
+                        }
                     }
 
-                    if ($updated_variations > 0) {
-                        $results['success'] += $updated_variations;
+                    if ($updated_variations > 0 || $parent_updated) {
+                        $results['success'] += ($updated_variations > 0 ? $updated_variations : 1);
                         $results['updated_products'][] = array(
                             'id' => $product_id,
                             'name' => $product->get_name(),

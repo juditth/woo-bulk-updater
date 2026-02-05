@@ -54,6 +54,11 @@ class WC_Bulk_Price_Editor_Admin
             return;
         }
 
+        if (function_exists('wc_enqueue_js')) {
+            wp_enqueue_script('wc-enhanced-select');
+            wp_enqueue_style('woocommerce_admin_styles');
+        }
+
         wp_enqueue_style(
             'wc-bulk-price-editor-admin',
             WC_BULK_PRICE_EDITOR_PLUGIN_URL . 'admin/css/admin-style.css',
@@ -64,13 +69,10 @@ class WC_Bulk_Price_Editor_Admin
         wp_enqueue_script(
             'wc-bulk-price-editor-admin',
             WC_BULK_PRICE_EDITOR_PLUGIN_URL . 'admin/js/admin-script.js',
-            array('jquery', 'select2'),
+            array('jquery', 'wc-enhanced-select'),
             WC_BULK_PRICE_EDITOR_VERSION,
             true
         );
-
-        wp_enqueue_style('select2');
-        wp_enqueue_script('select2');
 
         wp_localize_script('wc-bulk-price-editor-admin', 'wcBulkPriceEditor', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -159,21 +161,11 @@ class WC_Bulk_Price_Editor_Admin
                                 <div class="form-row">
                                     <label for="new_short_description"><?php _e('Krátký popis', 'woo-bulk-price-editor'); ?>
                                         <small>(jen pro jednoduché produkty)</small></label>
-                                    <?php
-                                    wp_editor('', 'new_short_description', array(
-                                        'textarea_name' => 'new_short_description',
-                                        'textarea_rows' => 5,
-                                        'media_buttons' => false,
-                                        'quicktags' => true,
-                                        'tinymce' => array(
-                                            'toolbar1' => 'bold,italic,bullist,numlist,link,unlink',
-                                            'toolbar2' => '',
-                                            'toolbar3' => '',
-                                        )
-                                    ));
-                                    ?>
+                                    <textarea name="new_short_description" id="new_short_description" rows="5"
+                                        placeholder="<?php _e('Ponechat prázdné pro beze změny', 'woo-bulk-price-editor'); ?>"></textarea>
                                     <p class="description">
-                                        <?php _e('Ponechat prázdné pro beze změny.', 'woo-bulk-price-editor'); ?></p>
+                                        <?php _e('Ponechat prázdné pro beze změny.', 'woo-bulk-price-editor'); ?>
+                                    </p>
                                 </div>
 
                                 <div class="form-row">
@@ -186,7 +178,8 @@ class WC_Bulk_Price_Editor_Admin
                                     ));
                                     ?>
                                     <p class="description">
-                                        <?php _e('Ponechat prázdné pro beze změny.', 'woo-bulk-price-editor'); ?></p>
+                                        <?php _e('Ponechat prázdné pro beze změny.', 'woo-bulk-price-editor'); ?>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -361,7 +354,8 @@ class WC_Bulk_Price_Editor_Admin
                             </th>
                             <?php if ($index === 0): ?>
                                 <td rowspan="<?php echo count($product['changes']); ?>">
-                                    <strong><?php echo esc_html($product['name']); ?></strong><br>
+                                    <strong><a href="<?php echo get_edit_post_link($product['id']); ?>"
+                                            target="_blank"><?php echo esc_html($product['name']); ?></a></strong><br>
                                     <small>ID: <?php echo $product['id']; ?></small>
                                 </td>
                                 <td rowspan="<?php echo count($product['changes']); ?>">
@@ -401,7 +395,8 @@ class WC_Bulk_Price_Editor_Admin
                 <?php foreach ($results['updated_products'] as $product): ?>
                     <li>
                         <strong>
-                            <?php echo esc_html($product['name']); ?>
+                            <a href="<?php echo get_edit_post_link($product['id']); ?>"
+                                target="_blank"><?php echo esc_html($product['name']); ?></a>
                         </strong> (ID:
                         <?php echo $product['id']; ?>)
                         <?php if ($product['variations'] > 0): ?>
