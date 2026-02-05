@@ -157,3 +157,14 @@
         transform: rotate(360deg);
     }
 }
+
+/* Updated Products List */
+.wc-updated-products-list {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.wc-updated-products-list li {
+    margin-bottom: 5px;
+}

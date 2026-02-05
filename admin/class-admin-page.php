@@ -284,9 +284,7 @@ class WC_Bulk_Price_Editor_Admin
 
         $results = $this->price_updater->update_prices_selective($changes_map, $new_price, $new_short_description, $new_description);
 
-        ob_start();
-        $this->render_results($results);
-        $html = ob_get_clean();
+        $html = $this->render_results($results);
 
         wp_send_json_success(array(
             'html' => $html,
@@ -322,12 +320,7 @@ class WC_Bulk_Price_Editor_Admin
             </div>
         <?php endif; ?>
 
-        <p>
-            <label>
-                <input type="checkbox" id="select-all-changes" checked>
-                <strong><?php _e('Vybrat všechny změny', 'woo-bulk-price-editor'); ?></strong>
-            </label>
-        </p>
+
 
         <table class="wp-list-table widefat fixed striped">
             <thead>
@@ -364,7 +357,8 @@ class WC_Bulk_Price_Editor_Admin
                             <?php endif; ?>
                             <td><?php echo esc_html($change['variation_name']); ?></td>
                             <td><?php echo wc_price($change['old_price']); ?></td>
-                            <td><strong><?php echo wc_price($change['new_price']); ?></strong></td>
+                            <td><strong><?php echo ($change['new_price'] !== '') ? wc_price($change['new_price']) : __('Beze změny', 'woo-bulk-price-editor'); ?></strong>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endforeach; ?>
@@ -378,52 +372,36 @@ class WC_Bulk_Price_Editor_Admin
      */
     private function render_results($results)
     {
-        if ($results['success'] > 0) {
-            ?>
-            <div class="notice notice-success">
-                <p>
-                    <strong>
-                        <?php printf(__('Úspěšně aktualizováno %d cen!', 'woo-bulk-price-editor'), $results['success']); ?>
-                    </strong>
-                </p>
-            </div>
+        $html = '';
 
-            <h3>
-                <?php _e('Aktualizované produkty:', 'woo-bulk-price-editor'); ?>
-            </h3>
-            <ul>
-                <?php foreach ($results['updated_products'] as $product): ?>
-                    <li>
-                        <strong>
-                            <a href="<?php echo get_edit_post_link($product['id']); ?>"
-                                target="_blank"><?php echo esc_html($product['name']); ?></a>
-                        </strong> (ID:
-                        <?php echo $product['id']; ?>)
-                        <?php if ($product['variations'] > 0): ?>
-                            -
-                            <?php printf(__('%d variant', 'woo-bulk-price-editor'), $product['variations']); ?>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-            <?php
+        if (!empty($results['updated_products'])) {
+            foreach ($results['updated_products'] as $product) {
+                $product_link = get_edit_post_link($product['id']);
+                $product_name = esc_html($product['name']);
+                $variation_text = '';
+
+                if ($product['variations'] > 0) {
+                    $variation_text = sprintf(__(' - %d variant', 'woo-bulk-price-editor'), $product['variations']);
+                }
+
+                $html .= sprintf(
+                    '<li><strong><a href="%s" target="_blank">%s</a></strong> (ID: %d)%s</li>',
+                    esc_url($product_link),
+                    $product_name,
+                    $product['id'],
+                    $variation_text
+                );
+            }
         }
 
         if (!empty($results['errors'])) {
-            ?>
-            <div class="notice notice-error">
-                <p><strong>
-                        <?php _e('Chyby:', 'woo-bulk-price-editor'); ?>
-                    </strong></p>
-                <ul>
-                    <?php foreach ($results['errors'] as $error): ?>
-                        <li>
-                            <?php echo esc_html($error); ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-            <?php
+            $html .= '<div class="notice notice-error"><p><strong>' . __('Chyby:', 'woo-bulk-price-editor') . '</strong></p><ul>';
+            foreach ($results['errors'] as $error) {
+                $html .= '<li>' . esc_html($error) . '</li>';
+            }
+            $html .= '</ul></div>';
         }
+
+        return $html;
     }
 }

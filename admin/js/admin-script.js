@@ -226,16 +226,23 @@ jQuery(document).ready(function ($) {
             applyBtn.text(originalBtnText).prop('disabled', true); // Keep disabled after run
             previewBtn.prop('disabled', false);
 
-            // Construct final summary
+            // Construct final summary - simple and reliable
             let finalHtml = '';
 
+            finalHtml += '<div class="notice notice-success"><p><strong>' +
+                '✅ Hotovo! Zpracování úspěšně dokončeno.' +
+                '</strong></p></div>';
+
             if (successCount > 0) {
-                finalHtml += '<div class="notice notice-success"><p><strong>' +
-                    'Úspěšně aktualizováno ' + successCount + ' cen (zpracováno v ' + currentBatch + ' dávkách).' +
-                    '</strong></p></div>';
+                finalHtml += '<div class="notice notice-info"><p>' +
+                    '📊 <strong>Úspěšně aktualizováno: ' + successCount + ' položek</strong><br>' +
+                    'Zpracováno v ' + currentBatch + ' dávkách.' +
+                    '</p></div>';
+            } else {
+                finalHtml += '<div class="notice notice-warning"><p>⚠️ Nebyly provedeny žádné změny.</p></div>';
             }
 
-            resultsContent.html(finalHtml + allHtmlResults);
+            resultsContent.html(finalHtml);
             resultsContainer.show();
             previewContainer.hide();
 
@@ -244,19 +251,8 @@ jQuery(document).ready(function ($) {
                 scrollTop: resultsContainer.offset().top - 50
             }, 500);
 
-            // Reset form partly? 
-            // In original code we reset form. Here we might want to keep it to see what was done.
-            // But let's follow previous logic -> reset form after success.
-            if (!hasErrors) {
-                form[0].reset();
-                $('.wc-category-select').val(null).trigger('change');
-
-                // Reset TinyMCE editors
-                if (typeof tinymce !== 'undefined') {
-                    if (tinymce.get('new_short_description')) tinymce.get('new_short_description').setContent('');
-                    if (tinymce.get('new_description')) tinymce.get('new_description').setContent('');
-                }
-            }
+            // Don't reset form - keep it so user can see what they did
+            // and can easily make another similar change if needed
         }
 
         // Start first batch
@@ -266,10 +262,12 @@ jQuery(document).ready(function ($) {
     /**
      * Select all changes functionality
      */
-    $('#select-all-changes, .select-all-checkbox').on('change', function () {
+    /**
+     * Select all changes functionality
+     */
+    $('.select-all-checkbox').on('change', function () {
         const isChecked = $(this).prop('checked');
         $('.change-checkbox').prop('checked', isChecked);
-        $('#select-all-changes').prop('checked', isChecked);
         $('.select-all-checkbox').prop('checked', isChecked);
         updateApplyButtonState();
     });
@@ -290,7 +288,6 @@ jQuery(document).ready(function ($) {
         const checkedCheckboxes = $('.change-checkbox:checked').length;
 
         const selectAllChecked = totalCheckboxes === checkedCheckboxes;
-        $('#select-all-changes').prop('checked', selectAllChecked);
         $('.select-all-checkbox').prop('checked', selectAllChecked);
     }
 
@@ -303,11 +300,19 @@ jQuery(document).ready(function ($) {
     }
 
     /**
-     * Reset preview when form changes
+     * Reset preview when SEARCH CRITERIA change (not when new values change)
      */
-    form.on('change', 'input, select, textarea', function () {
+    $('#category_id, #old_price').on('change', function () {
         previewContainer.hide();
         resultsContainer.hide();
         applyBtn.prop('disabled', true);
+    });
+
+    /**
+     * Prevent form submission (we use AJAX only)
+     */
+    form.on('submit', function (e) {
+        e.preventDefault();
+        return false;
     });
 });
