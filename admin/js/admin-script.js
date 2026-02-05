@@ -37,6 +37,19 @@ jQuery(document).ready(function ($) {
     }
 
     /**
+     * Helper to get content from WP Editor (TinyMCE) or Textarea
+     */
+    function getWysiwygContent(id) {
+        let content;
+        if (typeof tinymce !== 'undefined' && tinymce.get(id) && !tinymce.get(id).isHidden()) {
+            content = tinymce.get(id).getContent();
+        } else {
+            content = $('#' + id).val();
+        }
+        return content;
+    }
+
+    /**
      * Show error message
      */
     function showError(message) {
@@ -71,8 +84,8 @@ jQuery(document).ready(function ($) {
             category_id: $('#category_id').val(),
             old_price: $('#old_price').val(),
             new_price: $('#new_price').val(),
-            new_short_description: $('#new_short_description').val(),
-            new_description: $('#new_description').val()
+            new_short_description: getWysiwygContent('new_short_description'),
+            new_description: getWysiwygContent('new_description')
         };
 
         $.ajax({
@@ -165,8 +178,8 @@ jQuery(document).ready(function ($) {
                 category_id: $('#category_id').val(),
                 old_price: $('#old_price').val(),
                 new_price: $('#new_price').val(),
-                new_short_description: $('#new_short_description').val(),
-                new_description: $('#new_description').val(),
+                new_short_description: getWysiwygContent('new_short_description'),
+                new_description: getWysiwygContent('new_description'),
                 selected_changes: batchChanges
             };
 
@@ -231,6 +244,12 @@ jQuery(document).ready(function ($) {
             if (!hasErrors) {
                 form[0].reset();
                 $('.wc-category-select').val(null).trigger('change');
+
+                // Reset TinyMCE editors
+                if (typeof tinymce !== 'undefined') {
+                    if (tinymce.get('new_short_description')) tinymce.get('new_short_description').setContent('');
+                    if (tinymce.get('new_description')) tinymce.get('new_description').setContent('');
+                }
             }
         }
 

@@ -159,14 +159,34 @@ class WC_Bulk_Price_Editor_Admin
                                 <div class="form-row">
                                     <label for="new_short_description"><?php _e('Krátký popis', 'woo-bulk-price-editor'); ?>
                                         <small>(jen pro jednoduché produkty)</small></label>
-                                    <textarea name="new_short_description" id="new_short_description"
-                                        placeholder="<?php _e('Ponechat prázdné pro beze změny', 'woo-bulk-price-editor'); ?>"></textarea>
+                                    <?php
+                                    wp_editor('', 'new_short_description', array(
+                                        'textarea_name' => 'new_short_description',
+                                        'textarea_rows' => 5,
+                                        'media_buttons' => false,
+                                        'quicktags' => true,
+                                        'tinymce' => array(
+                                            'toolbar1' => 'bold,italic,bullist,numlist,link,unlink',
+                                            'toolbar2' => '',
+                                            'toolbar3' => '',
+                                        )
+                                    ));
+                                    ?>
+                                    <p class="description">
+                                        <?php _e('Ponechat prázdné pro beze změny.', 'woo-bulk-price-editor'); ?></p>
                                 </div>
 
                                 <div class="form-row">
                                     <label for="new_description"><?php _e('Hlavní popis', 'woo-bulk-price-editor'); ?></label>
-                                    <textarea name="new_description" id="new_description"
-                                        placeholder="<?php _e('Ponechat prázdné pro beze změny', 'woo-bulk-price-editor'); ?>"></textarea>
+                                    <?php
+                                    wp_editor('', 'new_description', array(
+                                        'textarea_name' => 'new_description',
+                                        'textarea_rows' => 10,
+                                        'media_buttons' => true,
+                                    ));
+                                    ?>
+                                    <p class="description">
+                                        <?php _e('Ponechat prázdné pro beze změny.', 'woo-bulk-price-editor'); ?></p>
                                 </div>
                             </div>
                         </div>
