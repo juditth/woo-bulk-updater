@@ -353,6 +353,7 @@ class WC_Bulk_Price_Editor_Admin
                         <input type="checkbox" class="select-all-checkbox" checked>
                     </th>
                     <th><?php _e('Produkt', 'woo-bulk-price-editor'); ?></th>
+                    <th><?php _e('Typ', 'woo-bulk-price-editor'); ?></th>
                     <th><?php _e('Varianta', 'woo-bulk-price-editor'); ?></th>
                     <th><?php _e('Původní cena', 'woo-bulk-price-editor'); ?></th>
                     <th><?php _e('Nová cena', 'woo-bulk-price-editor'); ?></th>
@@ -370,6 +371,8 @@ class WC_Bulk_Price_Editor_Admin
                                 <a href="<?php echo get_edit_post_link($product['id']); ?>" target="_blank">
                                     <?php echo esc_html($product['name']); ?>
                                 </a>
+                            </td>
+                            <td><?php echo $product['type'] === 'variable' ? __('Variantní', 'woo-bulk-price-editor') : __('Jednoduchý', 'woo-bulk-price-editor'); ?>
                             </td>
                             <td><?php echo esc_html($change['variation_name']); ?></td>
                             <td><?php echo wc_price($change['old_price']); ?></td>
